@@ -1,17 +1,23 @@
-import express from "express";
-import dotenv from "dotenv";
-import { dbConnect } from "./config/connectDB.js";
-import userRoute from "./routes/user.route.js";
+import express from 'express'
 
+const app = express()
 
-dotenv.config();
-dbConnect()
+app.listen(5000, () => console.log('Server running on port 5000'))
 
-const app = express();
-app.use(express.json());
+app.get('/api', (req, res) => {
+    let { slack_name, track } = req.query
 
-app.use("/api", userRoute)
+    let currentDate = new Date()
+    let day = currentDate.getDay()
+    let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server is running at ${PORT}`));
+    res.json({
+        slack_name,
+        current_day: days[day],
+        utc_time: currentDate.toISOString().split('.')[0] + 'Z',
+        track,
+        github_file_url: 'https://github.com/CABON-TECH/HNGx-stage_one_task/blob/main/app.js',
+        github_repo_url: 'https://github.com/CABON-TECH/HNGx-stage_one_task',
+        status_code: 200
+    })
+})
