@@ -1,55 +1,59 @@
-const express = require('express');
-const moment = require('moment-timezone');
-
+import express from 'express';
+import cors from 'cors';
+import formatUTCDate from './utils.js';
 const app = express();
-const port = process.env.PORT || 3000;
 
-app.get('/api', (req, res) => {
-  const slackName = 'boniface mbogho';
-  const track = 'backend';
+var corOptions = {
+    origin: '*',
+    methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'PATCH' ],
+    allowedHeaders: [ 'Content-Type', 'Authorization' ],
+    credentials: true,
+    setHeaders: function (res, path, stat) {
+        res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
+    }
 
-  // Validating query parameters
-  if (!slackName || !track) {
-    return res.status(400).json({ error: 'slack_name and track are required parameters' });
-  }
+};
 
-  // Get current day of the week
-  const currentDay = moment().tz('UTC').format('dddd');
-
-  // Get current UTC time with validation of +/-2 minutes
-  const currentUtcTime = getCurrentUtcTime();
-
-  // Construct GitHub URLs
-  const githubRepoUrl = 'https://github.com/CABON-TECH/HNGx-stage_one_task';
-  const githubFileUrl = `${githubRepoUrl}/HNGx-stage_one_task/app.js`;
-
-  // Prepare the response JSON
-  const response = {
-    slack_name: slackName,
-    current_day: currentDay,
-    utc_time: currentUtcTime.toISOString(),
-    track: track,
-    github_file_url: githubFileUrl,
-    github_repo_url: githubRepoUrl,
-    status_code: 200,
-  };
-
-  res.status(200).json(response);
+app.use(express.json());
+app.use(cors(corOptions));
+app.use(express.urlencoded({ extended: true }));
+app.route('/').get((req, res)=>{
+    return res.status(200).send({
+        message: "backend_logic API"
+    })
+})
+app.route('/api').get((req, res) => {
+    try {
+        const { slack_name, track } = req.query;
+        if (!(slack_name && track)){ return res.status(400).send({
+            data: null,
+            message: "Query parameter slack_name or track is required",
+            status: false,
+            status_code: 400
+        });
+    }
+        const daysOfWeek = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+        const currentDate = new Date();
+        const dayName = daysOfWeek[ currentDate.getDay() ];
+        return res.status(200).send({
+            "slack_name": "Boniface Mbogho",
+            "current_day": dayName,
+            "utc_time": formatUTCDate(currentDate),
+            "track": "backend",
+            "github_file_url": 'https://github.com/CABON-TECH/HNGx-stage_one_task/app.js',
+            "github_repo_url": 'https://github.com/CABON-TECH/HNGx-stage_one_task',
+            "status_code": 200
+        })
+    } catch (error) {
+             return res.status(500).send({
+                 data: null,
+                 message: error.message,
+                 status: false,
+                 status_code: 500
+             })
+    }
 });
 
-function getCurrentUtcTime() {
-  const currentUtcTime = moment().tz('UTC');
-  // Checking if the current time is within +/-2 minutes
-  const validRange = moment.duration(2, 'minutes');
-  const timeDifference = moment().tz('UTC').diff(currentUtcTime);
-  
-  if (Math.abs(timeDifference) > validRange) {
-    throw new Error('UTC time validation failed');
-  }
-
-  return currentUtcTime;
-}
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(8000, () => {
+    console.log(`listening on port 3000`);
 });
