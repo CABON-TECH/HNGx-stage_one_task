@@ -7,14 +7,14 @@ app.listen(5000, () => console.log('Server running on port 5000'))
 app.get('/api', (req, res) => {
     let { slack_name, track } = req.query
 
-    let currentDate = new Date()
+    let currentDate = new Date().toISOString().slice(0, -2) + 'Z'
     let day = currentDate.getDay()
     let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     res.json({
         slack_name,
         current_day: days[day],
-        utc_time: currentDate.toISOString().split('.')[0] + 'Z',
+        utc_time: currentDate,
         track,
         github_file_url: 'https://github.com/CABON-TECH/HNGx-stage_one_task/blob/main/app.js',
         github_repo_url: 'https://github.com/CABON-TECH/HNGx-stage_one_task',
