@@ -22,7 +22,7 @@ app.get('/api', (req, res) => {
         res.json({
             slack_name,
             current_day: days[day],
-            utc_time: currentDateWithWindow.toISOString().slice('.')[0] + 'Z',
+            utc_time: currentDateWithWindow.toISOString().slice(0, -2) + 'Z',
             track,
             github_file_url: 'https://github.com/CABON-TECH/HNGx-stage_one_task/blob/main/app.js',
             github_repo_url: 'https://github.com/CABON-TECH/HNGx-stage_one_task',
