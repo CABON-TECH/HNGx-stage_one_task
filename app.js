@@ -16,13 +16,12 @@ app.get('/api', (req, res) => {
             throw new Error('Invalid date object');
         }
 
-        let day = currentDateWithWindow.getUTCDay();
-        let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        // Format the UTC time as required
+        let formattedUtcTime = currentDateWithWindow.toISOString().slice(0, -5) + 'Z'; // Remove milliseconds and trailing 'Z'
 
         res.json({
             slack_name,
-            current_day: days[day],
-            utc_time: currentDateWithWindow.toISOString().slice(0, -5) + 'Z',
+            current_utc_time: formattedUtcTime,
             track,
             github_file_url: 'https://github.com/CABON-TECH/HNGx-stage_one_task/blob/main/app.js',
             github_repo_url: 'https://github.com/CABON-TECH/HNGx-stage_one_task',
